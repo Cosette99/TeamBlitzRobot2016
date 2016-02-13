@@ -8,7 +8,6 @@ package org.usfirst.frc2083.TeamBlitzRobot2016.subsystems;
 
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
-import edu.wpi.first.wpilibj.command.Subsystem;
 
 import org.usfirst.frc2083.TeamBlitzRobot2016.RobotMap;
 
