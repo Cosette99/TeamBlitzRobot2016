@@ -120,6 +120,9 @@ public class Robot extends IterativeRobot {
         armCommand.disableControl();
     }
 
+    /**
+     * This function is called at the beggining of autonomous control
+     */
     public void autonomousInit() {
     	RobotMap.auto = true;
     	RobotMap.autoTimer = System.currentTimeMillis();
@@ -147,7 +150,9 @@ public class Robot extends IterativeRobot {
         }
     	Scheduler.getInstance().run();
     }
-
+    /**
+     * This function is called at the beggining of operator control (Teleop)
+     */
     public void teleopInit() {
     	RobotMap.auto = false;
         System.out.println("TELEOP INIT");
