@@ -65,7 +65,8 @@ public class Robot extends IterativeRobot {
         RobotMap.rightForwardMotorController.setVoltageMode(CANJaguar.kQuadEncoder, 250);
         
         RobotMap.armBarMotorController = new CANTalon(RobotMap.armBarMotorControllerID);
-        RobotMap.armBarMotorController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+        //RobotMap.armBarMotorController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+        RobotMap.armBarMotorController.changeControlMode(CANTalon.ControlMode.PercentVbus);
         
         RobotMap.armBarMotorController.setFeedbackDevice(CANTalon.FeedbackDevice.AnalogPot);
         RobotMap.armBarMotorController.enableBrakeMode(true);

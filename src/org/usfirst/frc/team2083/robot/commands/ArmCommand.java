@@ -9,11 +9,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team2083.robot.Robot;
 import org.usfirst.frc.team2083.robot.RobotMap;
 
-/**
- *
- */
 public class  ArmCommand extends CommandBase {
 	public static Joystick xbox;
+	public static double speedMultiplier = .5;
 	//public double position = 0;
 
 	public ArmCommand() {
@@ -38,14 +36,13 @@ public class  ArmCommand extends CommandBase {
 
 	// Called repeatedly when this Command is scheduled to run
 	protected void execute() {
-		double rY;
-		rY = -xbox.getRawAxis(5);
-		double Y = rY; 		
-		if (Math.abs(Y) < 0.1) Y = 0;
-		Y = Y*Math.abs(Y)*.5;
-		//position += 2 * Y;
-		//double curpos = armBar.getController().getAnalogInPosition();
-		//System.out.println("Y = " + Y + ", rY = " + rY + ", curpos = " + curpos);
+		double Y;
+		Y = -xbox.getRawAxis(5);			//Set Y to the value of the XBox's 5th axis (The vertical axises of the right analog stick)
+		if (Math.abs(Y) < 0.1) Y = 0;		//Create a deadzone of .1
+		Y = Y*Math.abs(Y)*speedMultiplier;	//Multiply Y by itself and then by speedMultiplier
+								//position += 2 * Y;
+								//double curpos = armBar.getController().getAnalogInPosition();
+								//System.out.println("Y = " + Y + ", rY = " + rY + ", curpos = " + curpos);
 		armBar.setVoltage(Y);
  
 
