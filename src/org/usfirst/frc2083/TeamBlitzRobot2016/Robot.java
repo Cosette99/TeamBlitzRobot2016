@@ -12,20 +12,19 @@
 package org.usfirst.frc2083.TeamBlitzRobot2016;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.command.Command;
+//import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.CANJaguar;
-import edu.wpi.first.wpilibj.CANJaguar.JaguarControlMode;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Relay;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.Timer;
+//import edu.wpi.first.wpilibj.Relay;
+//import edu.wpi.first.wpilibj.Solenoid;
+//import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 import org.usfirst.frc2083.TeamBlitzRobot2016.commands.*;
-import org.usfirst.frc2083.TeamBlitzRobot2016.subsystems.*;
+//import org.usfirst.frc2083.TeamBlitzRobot2016.subsystems.*;
 
 
 /**
@@ -65,7 +64,8 @@ public class Robot extends IterativeRobot {
         RobotMap.rightForwardMotorController.setVoltageMode(CANJaguar.kQuadEncoder, 250);
         
         RobotMap.armBarMotorController = new CANTalon(RobotMap.armBarMotorControllerID);
-        RobotMap.armBarMotorController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+        //RobotMap.armBarMotorController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
+        RobotMap.armBarMotorController.changeControlMode(CANTalon.ControlMode.PercentVbus);
         
         RobotMap.armBarMotorController.setFeedbackDevice(CANTalon.FeedbackDevice.AnalogPot);
         RobotMap.armBarMotorController.enableBrakeMode(true);
@@ -120,6 +120,9 @@ public class Robot extends IterativeRobot {
         armCommand.disableControl();
     }
 
+    /**
+     * This function is called at the beggining of autonomous control
+     */
     public void autonomousInit() {
     	RobotMap.auto = true;
     	RobotMap.autoTimer = System.currentTimeMillis();
@@ -147,7 +150,9 @@ public class Robot extends IterativeRobot {
         }
     	Scheduler.getInstance().run();
     }
-
+    /**
+     * This function is called at the beggining of operator control (Teleop)
+     */
     public void teleopInit() {
     	RobotMap.auto = false;
         System.out.println("TELEOP INIT");

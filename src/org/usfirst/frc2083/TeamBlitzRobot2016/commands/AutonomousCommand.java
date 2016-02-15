@@ -13,8 +13,6 @@ package org.usfirst.frc2083.TeamBlitzRobot2016.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-import org.usfirst.frc2083.TeamBlitzRobot2016.Robot;
-
 /**
  *
  */
