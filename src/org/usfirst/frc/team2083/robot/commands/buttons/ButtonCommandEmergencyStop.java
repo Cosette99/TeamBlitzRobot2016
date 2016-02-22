@@ -7,13 +7,13 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 /**
  *
  */
-public class ButtonCommandSlowDown extends CommandGroup {
+public class ButtonCommandEmergencyStop extends CommandGroup {
     
-    public  ButtonCommandSlowDown() {    	
+    public  ButtonCommandEmergencyStop() {    	
     	requires(CommandBase.leftDrive);
     	requires(CommandBase.rightDrive);
     	requires(CommandBase.armBar);
     	
-       	addSequential(new TeleDriveCommand(.5));		//Set the speed multiplier to half-speed (50%)
+       	addSequential(new TeleDriveCommand(0));
     }
 }
