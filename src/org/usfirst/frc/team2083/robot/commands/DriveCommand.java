@@ -1,18 +1,14 @@
 
 package org.usfirst.frc.team2083.robot.commands;
-  		  
-import edu.wpi.first.wpilibj.Joystick;
-  		  
+
 import org.usfirst.frc.team2083.robot.RobotMap;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
- * @author bradmiller
  */
 public class DriveCommand extends CommandBase {
-    
-    public static Joystick xbox;
-    public static double speedMultiplier = .5;					//Runs the forward and backward motors at speed times this
     
     public DriveCommand() {
         // Use requires() here to declare subsystem dependencies
@@ -22,43 +18,58 @@ public class DriveCommand extends CommandBase {
     }
     
     public void enableControl() {
-        leftDrive.enable();
-        rightDrive.enable();
         leftDrive.enableControl();
         rightDrive.enableControl();
     }
     public void disableControl() {
-        leftDrive.disable();
-        rightDrive.disable();
         leftDrive.disableControl();
         rightDrive.disableControl();
     }
 
     // Called just before this Command runs the first time
     protected void initialize() {
+
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	double X = 0, Y = 0;							// 		<Begin code that runs during teleop> 	//
+    	double x = 0, y = 0;
 
-    	if (RobotMap.auto) {							//If the robot is in autonomous mode,
-    		Y = RobotMap.autoY;							//then set the robot's Y (forward drive?) to autoY
-    	} else {										//Otherwise,
-    		X = xbox.getX();							//Get the controller's analog stick's X position and label that the variable X
-    		//    	System.out.println("X = " + X);
-    		Y = xbox.getY(); //-xbox.getRawAxis(5);		//Get the negative of the controller's analog stick's Y position and label that the variable Y
-    		//    	System.out.println("Y = " + Y);
-    		if (Math.abs(X) < 0.1) X = 0;				//Create a deadzone (values which don't affect the motor) of .1 in the X value
-    		if (Math.abs(Y) < 0.1) Y = 0;				//Same as above, but with the Y value replacing the X variable
-    		X = X*Math.abs(X);							//Multiply X by the absouloute value of X and set it X
-    		Y = -Y*Math.abs(Y)*speedMultiplier;			//Multiply Y by the absoloute value of Y, then half it and label it Y
+    	x = oi.getMotorDriveLeftRightValue();
+    	y = oi.getMotorDriveForwardBackValue();
+    	x = x*Math.abs(x);
+    	y = y*Math.abs(y);
+    	if (Math.abs(x) < 0.15 && Math.abs(y) < 0.15) {
+    		//System.out.println("Raw (x, y) = (" + x + ", " + y + ")");
+    		x = 0;
+    		y = 0;
     	}
-    	System.out.println("Y = " + Y);					//Print "Y = " and the variable Y in the output
-    	leftDrive.setSetpoint(Y*360+X*240);				//Set the leftDrive variable to Y * 360 and X * 240
-        rightDrive.setSetpoint(Y*360-X*240);			//Do the same as the above, but with rightDrive instead of leftDrive
+    	System.out.println("(x, y) = (" + x + ", " + y + ")");
+
+    	//double leftSetPointVal = y*360+x*360;
+    	//double rightSetPointVal = y*360-x*360;
+    	double leftDriveVoltage = y*12+x*12;
+    	double rightDriveVoltage = y*12-x*12;
+    	    	
+//		System.out.println("Left drive setPoint = " + leftSetPointVal);
+//		System.out.println("Right drive setPoint = " + rightSetPointVal);
+//		
+//    	leftDrive.setSetpoint(leftSetPointVal);
+//        rightDrive.setSetpoint(rightSetPointVal);
         
-    }													// 		<End code that runs during teleop> 		//
+        leftDrive.setVoltage(leftDriveVoltage);
+        rightDrive.setVoltage(rightDriveVoltage);
+        
+        double lfc = RobotMap.leftForwardMotorController.getOutputCurrent();
+        double lbc = RobotMap.leftBackMotorController.getOutputCurrent();
+        double rfc = RobotMap.rightForwardMotorController.getOutputCurrent();
+        double rbc = RobotMap.rightBackMotorController.getOutputCurrent();
+                
+        SmartDashboard.putNumber("Left Front Current", lfc);
+        SmartDashboard.putNumber("Left Back Current", lbc);
+        SmartDashboard.putNumber("Right Front Current", rfc);
+        SmartDashboard.putNumber("Right Back Current", rbc);
+    }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {

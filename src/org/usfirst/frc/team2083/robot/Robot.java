@@ -11,21 +11,28 @@
 
 package org.usfirst.frc.team2083.robot;
 
+import org.usfirst.frc.team2083.robot.commands.ArmCommand;
+import org.usfirst.frc.team2083.robot.commands.CommandBase;
+import org.usfirst.frc.team2083.robot.commands.DriveCommand;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachChevalDeFris;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachDrawbridge;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachLowBar;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachMoat;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachPortcullis;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachRamparts;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachRockWall;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachRoughTerrain;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandBreachSallyPort;
+import org.usfirst.frc.team2083.robot.commands.auto.AutoCommandMoveArm;
+
+import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.CANJaguar;
-import edu.wpi.first.wpilibj.CANJaguar.JaguarControlMode;
-import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Relay;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DigitalInput;
-
-import org.usfirst.frc.team2083.robot.commands.*;
-import org.usfirst.frc.team2083.robot.subsystems.*;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
@@ -37,46 +44,50 @@ import org.usfirst.frc.team2083.robot.subsystems.*;
  */
 public class Robot extends IterativeRobot {
 
-    DriveCommand driveCommand;
+	// Robot commands
+	DriveCommand driveCommand;
     ArmCommand armCommand;
-    DigitalInput autoDistSelect;
-//    ClawCommand clawCommand;
-//    ShootCommand shootCommand;
+
+    // Autonomous commands and selection
+    Command autonomousCommand;
+    SendableChooser autoChooser;
 
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit() {
+        System.out.println("ROBOT INIT");
 
-        RobotMap.leftForwardMotorController = new CANJaguar(RobotMap.leftForwardMotorControllerID);
-        RobotMap.leftBackMotorController = new CANJaguar(RobotMap.leftBackMotorControllerID);
-        RobotMap.rightForwardMotorController = new CANJaguar(RobotMap.rightForwardMotorControllerID);
-        RobotMap.rightBackMotorController = new CANJaguar(RobotMap.rightBackMotorControllerID);
+        RobotMap.leftForwardMotorController = new CANJaguar(RobotMap.LEFT_FORWARD_MOTOR_CONTROLLER_ID);
+        RobotMap.leftBackMotorController = new CANJaguar(RobotMap.LEFT_BACK_MOTOR_CONTROLLER_ID);
+        RobotMap.rightForwardMotorController = new CANJaguar(RobotMap.RIGHT_FORWARD_MOTOR_CONTROLLER_ID);
+        RobotMap.rightBackMotorController = new CANJaguar(RobotMap.RIGHT_BACK_MOTOR_CONTROLLER_ID);
+        
         RobotMap.leftForwardMotorController.configNeutralMode(CANJaguar.NeutralMode.Brake);
         RobotMap.leftBackMotorController.configNeutralMode(CANJaguar.NeutralMode.Brake);
         RobotMap.rightForwardMotorController.configNeutralMode(CANJaguar.NeutralMode.Brake);
         RobotMap.rightBackMotorController.configNeutralMode(CANJaguar.NeutralMode.Brake);
         
         RobotMap.rightBackMotorController.setVoltageMode();
+        RobotMap.rightForwardMotorController.setVoltageMode();
         RobotMap.leftBackMotorController.setVoltageMode();
+        RobotMap.leftForwardMotorController.setVoltageMode();
         
-        RobotMap.leftForwardMotorController.setVoltageMode(CANJaguar.kQuadEncoder, 360);
-        RobotMap.rightForwardMotorController.setVoltageMode(CANJaguar.kQuadEncoder, 250);
+        RobotMap.armBarMotorController = new CANTalon(RobotMap.ARM_BAR_MOTOR_CONTROLLER_ID);
+        RobotMap.armBarMotorController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
         
-        RobotMap.armBarMotorController = new CANTalon(RobotMap.armBarMotorControllerID);
-        //RobotMap.armBarMotorController.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
-        RobotMap.armBarMotorController.changeControlMode(CANTalon.ControlMode.PercentVbus);
-        
-        RobotMap.armBarMotorController.setFeedbackDevice(CANTalon.FeedbackDevice.AnalogPot);
         RobotMap.armBarMotorController.enableBrakeMode(true);
-        RobotMap.armBarMotorController.setForwardSoftLimit(756);
-        RobotMap.armBarMotorController.enableForwardSoftLimit(true);
-        RobotMap.armBarMotorController.setReverseSoftLimit(100);  //was 8
-        RobotMap.armBarMotorController.enableReverseSoftLimit(true);
+        RobotMap.armBarMotorController.ConfigFwdLimitSwitchNormallyOpen(false);
+        RobotMap.armBarMotorController.ConfigRevLimitSwitchNormallyOpen(false);
+        //RobotMap.armBarMotorController.configPeakOutputVoltage(6, -6);
         
-        autoDistSelect = new DigitalInput(RobotMap.autoDistSelectChannel);
-        
+//        RobotMap.armBarMotorController.setFeedbackDevice(CANTalon.FeedbackDevice.AnalogPot);
+//        RobotMap.armBarMotorController.setForwardSoftLimit(756);
+//        RobotMap.armBarMotorController.enableForwardSoftLimit(true);
+//        RobotMap.armBarMotorController.setReverseSoftLimit(100);  //was 8
+//        RobotMap.armBarMotorController.enableReverseSoftLimit(true);
+                
 //        double p = 1;
 //        double i = .01;
 //        double d = 0;
@@ -95,63 +106,48 @@ public class Robot extends IterativeRobot {
 //        RobotMap.rightFront.setSpeedReference(CANJaguar.SpeedReference.kQuadEncoder);
 //        RobotMap.leftFront.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
 //        RobotMap.rightFront.setPositionReference(CANJaguar.PositionReference.kQuadEncoder);
-                
-//            RobotMap.compressorRelay = new Relay(1);
-//            RobotMap.compressorRelay.setDirection(Relay.Direction.kForward);
-//            RobotMap.solenoidRelay = new Relay(2);
-//            RobotMap.solenoidRelay.setDirection(Relay.Direction.kForward);
-//            RobotMap.shooterValveSolenoid = new Solenoid(1);
-//            RobotMap.shooterValveSolenoid.set(false);
-                    
+                                    
         // Initialize all subsystems
         CommandBase.init();
         driveCommand = new DriveCommand();
-        armCommand = new ArmCommand();
-//            clawCommand = new ClawCommand();
-        DriveCommand.xbox = new Joystick(0);
-        ArmCommand.xbox = DriveCommand.xbox;
-//            ClawCommand.xbox = DriveCommand.xbox;
-//            shootCommand = new ShootCommand();
-//            ShootCommand.xbox = DriveCommand.xbox;
-        
-       
-        
-//            clawCommand.disableControl();
         driveCommand.disableControl();
+
+        armCommand = new ArmCommand();
         armCommand.disableControl();
+                
+        // Autonomous setup.
+        autoChooser = new SendableChooser();
+        autoChooser.addDefault("Lower Arm Only (Default)", new AutoCommandMoveArm());
+        autoChooser.addObject("Breach Portcullis", new AutoCommandBreachPortcullis());
+        autoChooser.addObject("Breach Cheval de Fris", new AutoCommandBreachChevalDeFris());
+        autoChooser.addObject("Breach Moat", new AutoCommandBreachMoat());
+        autoChooser.addObject("Breach Ramparts", new AutoCommandBreachRamparts());
+        autoChooser.addObject("Breach Drawbridge", new AutoCommandBreachDrawbridge());
+        autoChooser.addObject("Breach Sally Port", new AutoCommandBreachSallyPort());
+        autoChooser.addObject("Breach Rock Wall", new AutoCommandBreachRockWall());
+        autoChooser.addObject("Breach Rough Terrain", new AutoCommandBreachRoughTerrain());
+        autoChooser.addObject("Breach Low Bar", new AutoCommandBreachLowBar());
+        
+        SmartDashboard.putData("Autonmous Mode", autoChooser);
     }
 
     public void autonomousInit() {
-    	RobotMap.auto = true;
-    	RobotMap.autoTimer = System.currentTimeMillis();
-    	if (autoDistSelect.get()) {
-    		RobotMap.autoDriveTime = 0; // if jumper is unplugged
-    	} else {
-    		RobotMap.autoDriveTime = 1500; // if jumper is plugged in
-    	}
-    	driveCommand.enableControl();
-    	driveCommand.start();
-    	//System.out.println("ran Autonomous init");
+        System.out.println("AUTONOMOUS INIT");
+
+        autonomousCommand = (Command) autoChooser.getSelected();
+        autonomousCommand.start();        
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-    	if(System.currentTimeMillis()-RobotMap.autoTimer < RobotMap.autoDriveTime ){
-    		RobotMap.autoY = .5;
-//    		System.out.println("autoY = .5, System Time millis = " 
-//    				+ System.currentTimeMillis() + 
-//    				", autoTimer = " + RobotMap.autoTimer);
-    	} else {
-    		RobotMap.autoY = 0;
-        }
     	Scheduler.getInstance().run();
     }
 
     public void teleopInit() {
-    	RobotMap.auto = false;
         System.out.println("TELEOP INIT");
+
         driveCommand.enableControl();
         driveCommand.start();
         armCommand.enableControl();
